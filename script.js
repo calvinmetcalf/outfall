@@ -1,7 +1,8 @@
-var oURL = 'http://services.massdot.state.ma.us/ArcGIS/rest/services/Assets/Outfalls/MapServer/0/query?where=OBJECTID+%3E+0&outFields=*&f=json';
-var m,d;
+var oURL = 'http://services.massdot.state.ma.us/ArcGIS/rest/services/Assets/Outfalls/MapServer/0/query?outFields=*&f=json&where=OBJECTID+>+';
+var m,c;
 var center = new google.maps.LatLng(41.914541,-71.592407);
 var zoom = 8;
+//17862
 //var infowindow = new google.maps.InfoWindow();
 $(function() {
       m = new google.maps.Map(document.getElementById('map'), {
@@ -9,33 +10,38 @@ $(function() {
       zoom: zoom,
       mapTypeId: 'roadmap'
     });
-   
-     $.get(oURL,
+   c = new MarkerClusterer(m,[]);
+   var b = 0;
+   while(b<18){
+   getData(b);
+   b++;
+   }
+}
+);
+var mapData =  function(d){
+var a = [];
+   $.each(d.features,function(i,p){
+       var xy = [p.geometry.x,p.geometry.y];
+    var latlng = mm.inverse(xy);
+    var  marker = new google.maps.Marker({position:  new google.maps.LatLng(latlng[1],latlng[0])});
+    a.push(marker);
+   }
+     
+       );
+        c.addMarkers(a); 
+                
+};
+var getData = function(count){
+    var bounds = count * 1000;
+    
+     $.get(oURL + bounds.toString(),
     function(data)
             {
                 mapData(data);
               
             },"jsonp"
     );
-}
-);
-var mapData =  function(data){
-   d = data;
-   $.each(d.features,function(i,p){
-       var xy = [p.geometry.x,p.geometry.y];
-    var latlng = mm.inverse(xy);
-    var  marker = new google.maps.Marker({
-                     position:  new google.maps.LatLng(latlng[1],latlng[0]),
-                     map: m
-                    
-            	
-                    });
-   }
-       
-       );
-                
 };
-
 var mm = new LCC({
 semi_major: 6378137,
 inverse_flattening: 298.257222101,
